@@ -63,7 +63,6 @@ In Codex / Claude Code, use:
 
 - `/kb:ingest`
   Single entrypoint for bootstrap, preview, update, and dependency checking.  
-  一个统一入口，内部处理初始化、预检、更新和依赖检查。
 
 Example intents:
 
