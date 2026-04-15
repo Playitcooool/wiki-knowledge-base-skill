@@ -481,8 +481,21 @@ def main() -> int:
     raw_root = root / RAW_DIR
     pages_root = root / PAGES_DIR
     if not raw_root.exists():
-        print(f"error: missing raw directory: {raw_root}", file=sys.stderr)
-        return 1
+        if apply:
+            raw_root.mkdir(parents=True, exist_ok=True)
+            pages_root.mkdir(parents=True, exist_ok=True)
+            (pages_root / "research").mkdir(parents=True, exist_ok=True)
+            (pages_root / "guides").mkdir(parents=True, exist_ok=True)
+            (pages_root / "notes").mkdir(parents=True, exist_ok=True)
+        else:
+            print("mode: dry-run")
+            print("environment: greenfield")
+            print(f"missing directory: {raw_root}")
+            print(
+                "No files were modified. Run with --apply to initialize raw/, pages/, "
+                "pages/index.md, and log.md."
+            )
+            return 0
 
     raw_files = [
         p

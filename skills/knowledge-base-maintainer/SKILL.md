@@ -1,6 +1,6 @@
 ---
 name: knowledge-base-maintainer
-description: Build and maintain an Obsidian-style knowledge base from source files in raw/. Use when users ask to ingest documents, sync knowledge pages, refresh pages/index.md and log.md, detect added/updated/deleted sources, reconcile relationships, or run dry-run audits for knowledge-base updates.
+description: Build and maintain an Obsidian-style knowledge base from source files in raw/. Use when users ask to ingest/update documents with one command (`kb-ingest`), including first-time bootstrap in a greenfield directory, refresh of pages/index.md and log.md, detection of added/updated/deleted sources, and conflict-aware dry-run audits.
 ---
 
 # Knowledge Base Maintainer
@@ -9,19 +9,24 @@ description: Build and maintain an Obsidian-style knowledge base from source fil
 Maintain a three-layer knowledge base (`raw/`, `pages/`, `pages/index.md` + `log.md`) with incremental updates and auditable output. Prefer project-local conversion scripts when present.
 
 ## Workflow
-1. Run a dry-run scan first:
+1. Run ingest dry-run first:
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/sync_kb.py --root .
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
 ```
-2. Review added/updated/deleted counts and conflicts.
-3. Apply changes only after conflict review:
+2. Apply ingest changes:
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/sync_kb.py --root . --apply
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
 ```
-4. If required conversion tooling is missing, run:
+3. If required conversion tooling is missing, run:
 ```bash
 python3 scripts/doctor.py
 ```
+
+## Greenfield Handling
+- If `raw/` does not exist yet:
+  - `kb-ingest` (dry-run) returns a greenfield notice and no changes.
+  - `kb-ingest --apply` bootstraps `raw/`, `pages/`, `pages/index.md`, and `log.md`.
+- After bootstrap, place source files in `raw/` and run `kb-ingest --apply` again.
 
 ## What The Script Does
 - Ensures required structure exists (`raw/`, `pages/research`, `pages/guides`, `pages/notes`, `pages/index.md`, `log.md`) in apply mode.
@@ -54,4 +59,4 @@ python3 scripts/doctor.py
 
 ## References
 - Read [workflow](references/workflow.md) for conflict triage and expected outputs.
-- Use `scripts/sync_kb.py` for deterministic sync; avoid ad hoc one-off filesystem updates.
+- Use `scripts/kb-ingest.py` as the public entry point, with `scripts/sync_kb.py` as the shared engine.

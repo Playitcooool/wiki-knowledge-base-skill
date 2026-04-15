@@ -40,17 +40,21 @@ python3 scripts/convert_source.py raw/example.docx -o /tmp/example.md
 python3 scripts/convert_source.py raw/example.pdf -o /tmp/example.md
 ```
 
-Run a dry-run knowledge-base sync:
+Run ingest dry-run (safe preview):
 
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/sync_kb.py --root .
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
 ```
 
-Apply the sync:
+Apply ingest updates:
 
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/sync_kb.py --root . --apply
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
 ```
+
+Greenfield note:
+- If `raw/` does not exist, dry-run prints an initialization hint.
+- `--apply` bootstraps `raw/`, `pages/`, `pages/index.md`, and `log.md`.
 
 ## PDF Conversion Policy
 PDF conversion is attempted in this order:
@@ -71,7 +75,8 @@ Representative checks:
 ```bash
 python3 -m py_compile scripts/convert_source.py scripts/doctor.py
 python3 -m py_compile skills/knowledge-base-maintainer/scripts/sync_kb.py
-python3 skills/knowledge-base-maintainer/scripts/sync_kb.py --root .
+python3 -m py_compile skills/knowledge-base-maintainer/scripts/kb-ingest.py
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
 ```
 
 ## Release Notes

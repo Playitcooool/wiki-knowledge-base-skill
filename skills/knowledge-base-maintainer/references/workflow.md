@@ -1,10 +1,10 @@
 # Workflow Reference
 
 ## Dry-Run First
-Use dry-run to inspect changes without writing files:
+Use `kb-ingest` dry-run (default) to inspect changes without writing files:
 
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/sync_kb.py --root .
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
 ```
 
 Expected output fields:
@@ -15,16 +15,27 @@ Expected output fields:
 - `conflicts`
 
 ## Apply Mode
-When conflicts are acceptable, apply updates:
+When conflicts are acceptable, apply incremental updates:
 
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/sync_kb.py --root . --apply
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
 ```
 
 Apply mode updates:
 - `pages/*`
 - `pages/index.md`
 - `log.md`
+
+## Greenfield Environment
+If the directory has not been initialized yet (no `raw/`):
+- `kb-ingest --root .` prints a greenfield notice and exits without changes.
+- `kb-ingest --root . --apply` bootstraps:
+  - `raw/`
+  - `pages/` + category folders
+  - `pages/index.md`
+  - `log.md`
+
+After bootstrap, add source files to `raw/` and run `kb-ingest --apply` again.
 
 ## Conflict Types
 - Possible rename:

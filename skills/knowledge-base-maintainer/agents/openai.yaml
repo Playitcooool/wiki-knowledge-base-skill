@@ -1,4 +1,4 @@
 interface:
   display_name: "Knowledge Base Maintainer"
   short_description: "Build and sync markdown knowledge bases from source files"
-  default_prompt: "Maintain this knowledge base end-to-end: ingest raw files, update pages, rebuild pages/index.md, and append log.md."
+  default_prompt: "Use kb-ingest for both initial bootstrap and ongoing updates. Handle greenfield roots by initializing raw/, pages/, pages/index.md, and log.md when apply mode is requested."
