@@ -1,89 +1,136 @@
 # Knowledge Base Maintainer
 
-Tools and a Codex skill for building and incrementally maintaining an Obsidian-friendly knowledge base from source files.
+Self-contained knowledge-base toolkit for Codex / Claude Code.  
+面向 Codex / Claude Code 的本地知识库构建与增量更新工具包。
 
-## What This Repository Includes
-- `skills/knowledge-base-maintainer/`
-  A publishable Codex skill for converting sources, checking tool availability, ingesting `raw/` sources, updating `pages/`, rebuilding `pages/index.md`, and appending `log.md`.
-- `raw/`, `pages/`, `pages/index.md`, `log.md`
-  An example knowledge-base workspace.
+## Usage
 
-## Repository Layout
+In Codex / Claude Code, use:
+
+- `/kb:ingest`
+  Single entrypoint for bootstrap, preview, update, and dependency checking.  
+  一个统一入口，内部处理初始化、预检、更新和依赖检查。
+
+Example intents:
+
 ```text
-.
-├── raw/                                   # Original source files
-├── pages/                                 # Generated markdown knowledge pages
-├── skills/
-│   └── knowledge-base-maintainer/         # Publishable Codex skill
-│       └── scripts/                       # convert_source.py, doctor.py, kb-ingest.py, sync_kb.py
-├── pages/index.md                         # Global knowledge-base entry page
-└── log.md                                 # Local update log (not committed)
+/kb:ingest preview this folder first
+/kb:ingest bootstrap this folder and build the knowledge base
+/kb:ingest update pages/ from raw/
+/kb:ingest check whether PDF conversion is ready
 ```
 
-## Quick Start
-Check local tool availability:
+Behavior:
+
+- Preview / inspect / review intent: dry-run first
+- Build / update / sync intent: apply changes
+- Dependency / readiness intent: run doctor logic
+- Greenfield folder: initialize `raw/`, `pages/`, `pages/index.md`, `log.md` when needed
+
+## Install
+
+### Plugin
+
+Recommended if you want the explicit slash command `/kb:ingest`.
+
+Repo-local plugin:
 
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/doctor.py
+# keep the repo structure as-is
+plugins/kb
+.agents/plugins/marketplace.json
 ```
 
-Convert a single source file:
+Home-local plugin:
 
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/convert_source.py raw/example.docx -o /tmp/example.md
-python3 skills/knowledge-base-maintainer/scripts/convert_source.py raw/example.pdf -o /tmp/example.md
+mkdir -p ~/plugins
+cp -R plugins/kb ~/plugins/kb
+mkdir -p ~/.agents/plugins
 ```
 
-Run ingest dry-run (safe preview):
+Then add this entry to `~/.agents/plugins/marketplace.json`:
+
+```json
+{
+  "name": "kb",
+  "source": {
+    "source": "local",
+    "path": "./plugins/kb"
+  },
+  "policy": {
+    "installation": "AVAILABLE",
+    "authentication": "ON_INSTALL"
+  },
+  "category": "Productivity"
+}
+```
+
+### Skill Only
+
+Use this if you want the underlying skill without the plugin command layer.
 
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
+mkdir -p ~/.codex/skills
+cp -R skills/knowledge-base-maintainer ~/.codex/skills/knowledge-base-maintainer
 ```
 
-Apply ingest updates:
+Then invoke it from Codex with the installed skill name.
+
+## Dependencies
+
+- Out of the box: `md` / `txt`
+- Requires `pandoc`: `html` / `docx`
+- Minimal Python install for basic PDF fallback:
 
 ```bash
-python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
+pip install -r skills/knowledge-base-maintainer/requirements.txt
 ```
 
-Greenfield note:
-- If `raw/` does not exist, dry-run prints an initialization hint.
-- `--apply` bootstraps `raw/`, `pages/`, `pages/index.md`, and `log.md`.
-
-## PDF Conversion Policy
-PDF conversion is attempted in this order:
-1. `Docling`
-2. `MinerU`
-3. `pypdf` fallback
-
-`docling` and `mineru` are optional local backends. If neither is installed, the repository still works with the `pypdf` fallback.
-
-## Installing The Skill
-Clone the repository, then install or copy `skills/knowledge-base-maintainer` into your Codex skills directory.
-
-If you use the built-in skill installer, point it at this repository path after publishing.
-
-Install Python dependency for bundled converter:
+- Optional enhanced PDF/OCR install:
 
 ```bash
-python3 -m pip install -r skills/knowledge-base-maintainer/requirements.txt
+pip install -r skills/knowledge-base-maintainer/requirements-optional.txt
 ```
 
-## Validation
-Representative checks:
+Conversion path:
 
-```bash
-python3 -m py_compile skills/knowledge-base-maintainer/scripts/convert_source.py skills/knowledge-base-maintainer/scripts/doctor.py
-python3 -m py_compile skills/knowledge-base-maintainer/scripts/sync_kb.py
-python3 -m py_compile skills/knowledge-base-maintainer/scripts/kb-ingest.py
-python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
+- HTML / DOCX: `pandoc`
+- PDF: `docling -> mineru -> pypdf`
+
+## Architecture
+
+[Architecture inspiration: Andrej Karpathy, *LLM Wiki*](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+
+```mermaid
+graph TD
+    A["raw/* source files"] --> B["/kb:ingest"]
+    B --> C["knowledge-base-maintainer skill"]
+    C --> D["kb-ingest.py"]
+    D --> E["sync_kb.py"]
+    E --> F["convert_source.py"]
+    F --> F1["HTML / DOCX: pandoc"]
+    F --> F2["PDF: Docling -> MinerU -> pypdf"]
+    E --> G["pages/category/slug.md"]
+    E --> H["pages/index.md"]
+    E --> I["log.md"]
 ```
 
-## Release Notes
-- The repository does not yet declare an open-source license.
-- If `raw/` contains third-party source material, review redistribution rights before making the repository public.
+## Packaging
 
-## Tracking Policy
-- `raw/` is local source material and is ignored by git.
-- `pages/` (including `pages/index.md`) is local generated knowledge output and is ignored by git.
-- `log.md` is local runtime history and is ignored by git.
+- Standalone skill: [`skills/knowledge-base-maintainer`](skills/knowledge-base-maintainer)
+- Explicit command plugin: [`plugins/kb`](plugins/kb)
+- Local marketplace entry: [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json)
+
+The plugin bundles the same skill so slash commands can explicitly invoke it.  
+plugin 内置同一份 skill，用于提供显式 slash command 入口。
+
+## Runtime
+
+- Git-ignored runtime data: `raw/`, `pages/`, `log.md`
+- Generated global index path: `pages/index.md`
+- Default ingest behavior: dry-run first, `--apply` to write
+
+## License
+
+MIT. See [LICENSE](LICENSE).
