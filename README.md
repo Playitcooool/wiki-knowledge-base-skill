@@ -1,6 +1,6 @@
 # wiki-knowledge-base-skill
 
-Build and maintain a local markdown knowledge base for Codex and Claude Code with one command: `/kb:ingest`.
+Build and maintain a local knowledge base based on Karpathy's LLM Wiki.
 
 ## English
 
