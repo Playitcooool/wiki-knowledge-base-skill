@@ -23,7 +23,7 @@ python3 skills/knowledge-base-maintainer/scripts/sync_kb.py --root . --apply
 
 Apply mode updates:
 - `pages/*`
-- `index.md`
+- `pages/index.md`
 - `log.md`
 
 ## Conflict Types

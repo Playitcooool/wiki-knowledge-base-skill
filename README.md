@@ -8,8 +8,8 @@ Tools and a Codex skill for building and incrementally maintaining an Obsidian-f
 - `scripts/doctor.py`
   Check local conversion-tool availability.
 - `skills/knowledge-base-maintainer/`
-  A publishable Codex skill for ingesting `raw/` sources, updating `pages/`, rebuilding `index.md`, and appending `log.md`.
-- `raw/`, `pages/`, `index.md`, `log.md`
+  A publishable Codex skill for ingesting `raw/` sources, updating `pages/`, rebuilding `pages/index.md`, and appending `log.md`.
+- `raw/`, `pages/`, `pages/index.md`, `log.md`
   An example knowledge-base workspace.
 
 ## Repository Layout
@@ -22,8 +22,8 @@ Tools and a Codex skill for building and incrementally maintaining an Obsidian-f
 │   └── doctor.py                          # Tool availability checks
 ├── skills/
 │   └── knowledge-base-maintainer/         # Publishable Codex skill
-├── index.md                               # Global knowledge-base entry page
-└── log.md                                 # Update log
+├── pages/index.md                         # Global knowledge-base entry page
+└── log.md                                 # Local update log (not committed)
 ```
 
 ## Quick Start
@@ -77,3 +77,8 @@ python3 skills/knowledge-base-maintainer/scripts/sync_kb.py --root .
 ## Release Notes
 - The repository does not yet declare an open-source license.
 - If `raw/` contains third-party source material, review redistribution rights before making the repository public.
+
+## Tracking Policy
+- `raw/` is local source material and is ignored by git.
+- `pages/` (including `pages/index.md`) is local generated knowledge output and is ignored by git.
+- `log.md` is local runtime history and is ignored by git.

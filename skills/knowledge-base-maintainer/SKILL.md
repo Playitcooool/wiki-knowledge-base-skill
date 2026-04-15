@@ -1,12 +1,12 @@
 ---
 name: knowledge-base-maintainer
-description: Build and maintain an Obsidian-style knowledge base from source files in raw/. Use when users ask to ingest documents, sync knowledge pages, refresh index.md/log.md, detect added/updated/deleted sources, reconcile relationships, or run dry-run audits for knowledge-base updates.
+description: Build and maintain an Obsidian-style knowledge base from source files in raw/. Use when users ask to ingest documents, sync knowledge pages, refresh pages/index.md and log.md, detect added/updated/deleted sources, reconcile relationships, or run dry-run audits for knowledge-base updates.
 ---
 
 # Knowledge Base Maintainer
 
 ## Overview
-Maintain a three-layer knowledge base (`raw/`, `pages/`, `index.md` + `log.md`) with incremental updates and auditable output. Prefer project-local conversion scripts when present.
+Maintain a three-layer knowledge base (`raw/`, `pages/`, `pages/index.md` + `log.md`) with incremental updates and auditable output. Prefer project-local conversion scripts when present.
 
 ## Workflow
 1. Run a dry-run scan first:
@@ -24,7 +24,7 @@ python3 scripts/doctor.py
 ```
 
 ## What The Script Does
-- Ensures required structure exists (`raw/`, `pages/research`, `pages/guides`, `pages/notes`, `index.md`, `log.md`) in apply mode.
+- Ensures required structure exists (`raw/`, `pages/research`, `pages/guides`, `pages/notes`, `pages/index.md`, `log.md`) in apply mode.
 - Detects incremental changes:
   - Added: source exists in `raw/` but no mapped page.
   - Updated: source mtime is newer than mapped page.
@@ -35,7 +35,7 @@ python3 scripts/doctor.py
   - `Content`
   - `Key Entities`
   - `Related Files Index`
-- Rebuilds `index.md` document catalog and relation summary.
+- Rebuilds `pages/index.md` document catalog and relation summary.
 - Appends a dated entry to `log.md`.
 
 ## Safety Rules

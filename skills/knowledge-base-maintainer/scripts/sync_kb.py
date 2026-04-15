@@ -24,7 +24,7 @@ from typing import Iterable
 
 RAW_DIR = "raw"
 PAGES_DIR = "pages"
-INDEX_FILE = "index.md"
+INDEX_FILE = f"{PAGES_DIR}/index.md"
 LOG_FILE = "log.md"
 SUPPORTED_CATEGORIES = ("research", "guides", "notes")
 SUPPORTED_RAW_TYPES = {
@@ -154,8 +154,10 @@ def ensure_structure(root: Path, apply: bool) -> None:
         if apply:
             directory.mkdir(parents=True, exist_ok=True)
 
-    if apply and not (root / INDEX_FILE).exists():
-        (root / INDEX_FILE).write_text("# Knowledge Base Index\n\n", encoding="utf-8")
+    index_path = root / INDEX_FILE
+    if apply and not index_path.exists():
+        index_path.parent.mkdir(parents=True, exist_ok=True)
+        index_path.write_text("# Knowledge Base Index\n\n", encoding="utf-8")
     if apply and not (root / LOG_FILE).exists():
         (root / LOG_FILE).write_text("# Knowledge Base Log\n\n", encoding="utf-8")
 

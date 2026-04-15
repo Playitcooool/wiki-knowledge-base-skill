@@ -17,13 +17,14 @@ Maintain the following three-layer structure in the current directory:
    - `<category>` must be one of `research`, `guides`, or `notes`.
    - If classification is unclear, use `notes` and mark the classification as `to be confirmed` in the generated content or update log.
 
-3. `index.md`
+3. `pages/index.md`
    - This is the global index page, similar to a wiki homepage.
    - It should summarize categories, major topics, important relationships, and entry links.
 
 4. `log.md`
    - This is the update log for the knowledge base.
    - It stores recently added, updated, deleted, or conflict-related records.
+   - Treat this as a local runtime file and do not commit it to git by default.
 
 If any of these paths do not exist, create the missing structure first, then continue with the update.
 
@@ -89,7 +90,7 @@ Fallback behavior:
 Handling temporary outputs:
 
 - Do not treat temporary converted files as permanent knowledge-base content.
-- Do not add temporary extraction outputs to `index.md`.
+- Do not add temporary extraction outputs to `pages/index.md`.
 - If a tool writes intermediate files, keep them outside the main wiki structure or clean them up after use.
 
 The target file must follow this structure:
@@ -151,9 +152,9 @@ Relationship rules:
 - Prefer the most relevant 3 to 8 files instead of creating meaningless full mesh links.
 - If there is not enough evidence that two files are related, do not force the relationship.
 
-## 5. Global `index.md` Rules
+## 5. Global `pages/index.md` Rules
 
-`index.md` is the global wiki entry point and must be maintained continuously.
+`pages/index.md` is the global wiki entry point and must be maintained continuously.
 
 Recommended structure:
 
@@ -176,13 +177,13 @@ Recommended structure:
 
 Maintenance requirements:
 
-- Every file in `pages/` must be reachable from `index.md`.
+- Every file in `pages/` must be reachable from `pages/index.md`.
 - Use a table in `## Document Catalog` to present the main index more clearly.
 - The catalog table should include at least: `Title`, `Category`, `Source File`, `Page`, and `Last Synced`.
 - Use lists, not tables, for `## Key Topics` and `## Important Relations`, because relationship navigation is easier to read in list form.
-- Add topic-level aggregation entries for recurring themes so `index.md` does not become a plain file dump.
-- When files are added, deleted, moved, or renamed, update `index.md` accordingly.
-- Store update history in `log.md`, not in `index.md`.
+- Add topic-level aggregation entries for recurring themes so `pages/index.md` does not become a plain file dump.
+- When files are added, deleted, moved, or renamed, update `pages/index.md` accordingly.
+- Store update history in `log.md`, not in `pages/index.md`.
 
 ## 6. How to Handle Update Commands
 
@@ -195,8 +196,8 @@ When the user issues a command such as “update the knowledge base”, “sync 
    - Deleted: a `pages/` file references a `source_path` that no longer exists in `raw/`
 3. Process them in this order:
    - Added: extract text if needed, then create the new `pages/<category>/<slug>.md`
-   - Updated: re-run extraction if needed, then refresh the Markdown content, frontmatter, related-file index, `index.md`, and `log.md`
-   - Deleted: remove the entry from `index.md`, record the change in `log.md`, and delete or archive the corresponding `pages/` file
+   - Updated: re-run extraction if needed, then refresh the Markdown content, frontmatter, related-file index, `pages/index.md`, and `log.md`
+   - Deleted: remove the entry from `pages/index.md`, record the change in `log.md`, and delete or archive the corresponding `pages/` file
 4. Re-check all relationship links at the end to ensure they remain valid.
 
 Update behavior requirements:
@@ -233,7 +234,7 @@ To support Obsidian graph visualization and navigation:
 - Prefer wiki links for internal references: `[[pages/category/file]]`
 - Keep titles and slugs stable to avoid unnecessary link churn
 - Reuse existing pages for the same topic instead of creating semantically duplicate pages
-- Ensure that `index.md`, category groupings, and document pages form a traversable link network
+- Ensure that `pages/index.md`, category groupings, and document pages form a traversable link network
 
 ## 9. Output Style Requirements
 
