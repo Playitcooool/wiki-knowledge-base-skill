@@ -1,18 +1,14 @@
-# Knowledge Base Maintainer
+# wiki-knowledge-base-skill
 
-Self-contained knowledge-base toolkit for Codex / Claude Code.  
-面向 Codex / Claude Code 的本地知识库构建与增量更新工具包。
+Build and maintain a local markdown knowledge base for Codex and Claude Code with one command: `/kb:ingest`.
 
-## Install
+## English
 
-No official certification is required.
+### Install
 
-- Codex can use this repository as a whole-repo capability bundle.
-- Claude Code can use it as a local plugin or through a self-hosted marketplace.
+#### Codex
 
-### Codex
-
-Clone the whole repo, then expose `skills/` to Codex native discovery.
+Clone the whole repository, expose `skills/` to Codex skill discovery, then restart Codex.
 
 ```bash
 git clone https://github.com/Playitcooool/wiki-knowledge-base-skill.git ~/.codex/vendor_imports/wiki-knowledge-base-skill
@@ -20,20 +16,9 @@ mkdir -p ~/.agents/skills/wiki-knowledge-base
 ln -s ~/.codex/vendor_imports/wiki-knowledge-base-skill/skills ~/.agents/skills/wiki-knowledge-base/skills
 ```
 
-Then restart Codex.
+#### Claude Code
 
-Whole-repo install docs: [INSTALL.md](/Volumes/Samsung/Projects/knowledge-base/.codex/INSTALL.md)
-
-If your Codex build supports local plugin packages, the repository root also includes:
-
-- [plugin.json](/Volumes/Samsung/Projects/knowledge-base/.codex-plugin/plugin.json)
-- [commands](/Volumes/Samsung/Projects/knowledge-base/commands)
-
-That is the slash-command layer for `/kb:ingest`.
-
-### Claude Code
-
-Local session plugin:
+Local plugin directory:
 
 ```bash
 claude --plugin-dir /path/to/wiki-knowledge-base-skill
@@ -45,27 +30,22 @@ Local or self-hosted marketplace:
 /plugin marketplace add /path/to/wiki-knowledge-base-skill
 ```
 
-Or, after publishing:
+After publishing:
 
 ```text
 /plugin marketplace add https://github.com/Playitcooool/wiki-knowledge-base-skill
 /plugin install kb@knowledge-base
 ```
 
-Claude marketplace files live at:
+### Use
 
-- [plugin.json](/Volumes/Samsung/Projects/knowledge-base/.claude-plugin/plugin.json)
-- [marketplace.json](/Volumes/Samsung/Projects/knowledge-base/.claude-plugin/marketplace.json)
+Use:
 
-## Usage
+```text
+/kb:ingest
+```
 
-In Codex / Claude Code, use:
-
-- `/kb:ingest`
-  Single entrypoint for bootstrap, preview, update, and dependency checking.  
-  一个统一入口，内部处理初始化、预检、更新和依赖检查。
-
-Example intents:
+Typical intents:
 
 ```text
 /kb:ingest preview this folder first
@@ -76,22 +56,24 @@ Example intents:
 
 Behavior:
 
-- Preview / inspect / review intent: dry-run first
-- Build / update / sync intent: apply changes
-- Dependency / readiness intent: run doctor logic
-- Greenfield folder: initialize `raw/`, `pages/`, `pages/index.md`, `log.md` when needed
+- Preview or inspect intent: preview first
+- Build, update, or sync intent: apply changes
+- Dependency question: run doctor logic
+- Greenfield folder: initialize `raw/`, `pages/`, `pages/index.md`, and `log.md` when needed
 
-## Dependencies
+The model can also infer this skill from user intent even without the explicit slash command, but `/kb:ingest` is the clearest path.
 
-- Out of the box: `md` / `txt`
-- Requires `pandoc`: `html` / `docx`
-- Minimal Python install for basic PDF fallback:
+### Dependencies
+
+- Out of the box: `md`, `txt`
+- Requires `pandoc`: `html`, `docx`
+- Basic PDF fallback:
 
 ```bash
 pip install -r skills/knowledge-base-maintainer/requirements.txt
 ```
 
-- Optional enhanced PDF/OCR install:
+- Enhanced PDF and OCR:
 
 ```bash
 pip install -r skills/knowledge-base-maintainer/requirements-optional.txt
@@ -99,40 +81,126 @@ pip install -r skills/knowledge-base-maintainer/requirements-optional.txt
 
 Conversion path:
 
-- HTML / DOCX: `pandoc`
+- HTML and DOCX: `pandoc`
 - PDF: `docling -> mineru -> pypdf`
 
-## Architecture
+### Architecture
 
-[Architecture inspiration: Andrej Karpathy, *LLM Wiki*](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+Architecture inspiration: [Andrej Karpathy, LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 
 ```mermaid
 graph TD
-    A["raw/* source files"] --> B["/kb:ingest"]
-    B --> C["knowledge-base-maintainer skill"]
+    A["raw source files"] --> B["/kb:ingest"]
+    B --> C["knowledge-base-maintainer"]
     C --> D["kb-ingest.py"]
     D --> E["sync_kb.py"]
     E --> F["convert_source.py"]
-    F --> F1["HTML / DOCX: pandoc"]
-    F --> F2["PDF: Docling -> MinerU -> pypdf"]
+    F --> F1["pandoc for html and docx"]
+    F --> F2["docling then mineru then pypdf"]
     E --> G["pages/category/slug.md"]
     E --> H["pages/index.md"]
     E --> I["log.md"]
 ```
 
-## Packaging
+## 中文
 
-- Root Codex package: [plugin.json](/Volumes/Samsung/Projects/knowledge-base/.codex-plugin/plugin.json)
-- Root Claude package: [plugin.json](/Volumes/Samsung/Projects/knowledge-base/.claude-plugin/plugin.json)
-- Root slash commands: [commands](/Volumes/Samsung/Projects/knowledge-base/commands)
-- Standalone skill: [`skills/knowledge-base-maintainer`](skills/knowledge-base-maintainer)
-- Legacy nested Codex plugin: [`plugins/kb`](plugins/kb)
+### 安装
 
-## Runtime
+#### Codex
 
-- Git-ignored runtime data: `raw/`, `pages/`, `log.md`
-- Generated global index path: `pages/index.md`
-- Default ingest behavior: dry-run first, `--apply` to write
+建议直接按整仓安装。克隆仓库后，把 `skills/` 暴露给 Codex 的 skill discovery，然后重启 Codex。
+
+```bash
+git clone https://github.com/Playitcooool/wiki-knowledge-base-skill.git ~/.codex/vendor_imports/wiki-knowledge-base-skill
+mkdir -p ~/.agents/skills/wiki-knowledge-base
+ln -s ~/.codex/vendor_imports/wiki-knowledge-base-skill/skills ~/.agents/skills/wiki-knowledge-base/skills
+```
+
+#### Claude Code
+
+本地 plugin 目录方式：
+
+```bash
+claude --plugin-dir /path/to/wiki-knowledge-base-skill
+```
+
+本地或自托管 marketplace：
+
+```text
+/plugin marketplace add /path/to/wiki-knowledge-base-skill
+```
+
+发布后也可以直接从 GitHub 安装：
+
+```text
+/plugin marketplace add https://github.com/Playitcooool/wiki-knowledge-base-skill
+/plugin install kb@knowledge-base
+```
+
+### 使用
+
+统一入口是：
+
+```text
+/kb:ingest
+```
+
+典型调用：
+
+```text
+/kb:ingest 先预检当前文件夹
+/kb:ingest 初始化当前目录并构建知识库
+/kb:ingest 根据 raw/ 更新 pages/
+/kb:ingest 检查 PDF 转换依赖是否就绪
+```
+
+行为规则：
+
+- 用户只是查看、预检、审阅时：先走 preview
+- 用户明确要构建、更新、同步时：走 apply
+- 用户在问依赖或转换能力时：先走 doctor 逻辑
+- 绿地目录下：按需初始化 `raw/`、`pages/`、`pages/index.md`、`log.md`
+
+即使用户不显式输入 `/kb:ingest`，模型也可以根据意图命中这个 skill，但显式命令最稳定。
+
+### 依赖
+
+- 开箱可用：`md`、`txt`
+- 需要 `pandoc`：`html`、`docx`
+- 基础 PDF fallback：
+
+```bash
+pip install -r skills/knowledge-base-maintainer/requirements.txt
+```
+
+- 增强 PDF 和 OCR：
+
+```bash
+pip install -r skills/knowledge-base-maintainer/requirements-optional.txt
+```
+
+转换链路：
+
+- HTML / DOCX：`pandoc`
+- PDF：`docling -> mineru -> pypdf`
+
+### 架构
+
+架构参考：[Andrej Karpathy, LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+
+```mermaid
+graph TD
+    A["raw 源文件"] --> B["/kb:ingest"]
+    B --> C["knowledge-base-maintainer"]
+    C --> D["kb-ingest.py"]
+    D --> E["sync_kb.py"]
+    E --> F["convert_source.py"]
+    F --> F1["html 和 docx 走 pandoc"]
+    F --> F2["pdf 走 docling 再 mineru 再 pypdf"]
+    E --> G["pages/category/slug.md"]
+    E --> H["pages/index.md"]
+    E --> I["log.md"]
+```
 
 ## License
 

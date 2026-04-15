@@ -1,7 +1,7 @@
 {
   "name": "kb",
   "version": "0.2.0",
-  "description": "Single slash command for building and updating a local markdown knowledge base",
+  "description": "Build and maintain a local markdown knowledge base based on Karpathy's LLM Wiki",
   "author": {
     "name": "Playitcooool",
     "url": "https://github.com/Playitcooool"
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "KB",
-    "shortDescription": "One slash command for knowledge-base sync",
-    "longDescription": "Whole-repo Codex package for maintaining a markdown knowledge base with a single `/kb:ingest` command.",
+    "shortDescription": "Local knowledge base with one command",
+    "longDescription": "Whole-repo Codex package for building and maintaining a local markdown knowledge base based on Karpathy's LLM Wiki.",
     "developerName": "Playitcooool",
     "category": "Productivity",
     "capabilities": [

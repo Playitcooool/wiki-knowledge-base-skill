@@ -1,7 +1,7 @@
 {
   "name": "kb",
   "version": "0.2.0",
-  "description": "Single slash command for building and updating a local markdown knowledge base",
+  "description": "Build and maintain a local markdown knowledge base based on Karpathy's LLM Wiki",
   "author": {
     "name": "Playitcooool",
     "url": "https://github.com/Playitcooool"
