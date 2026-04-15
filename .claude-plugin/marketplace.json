@@ -1,0 +1,27 @@
+{
+  "name": "knowledge-base",
+  "plugins": [
+    {
+      "name": "kb",
+      "description": "Single slash command for building and updating a local markdown knowledge base",
+      "version": "0.2.0",
+      "author": {
+        "name": "Playitcooool",
+        "url": "https://github.com/Playitcooool"
+      },
+      "source": ".",
+      "category": "productivity",
+      "tags": [
+        "knowledge-base",
+        "markdown",
+        "obsidian",
+        "documents"
+      ],
+      "keywords": [
+        "knowledge-base",
+        "markdown",
+        "ingest"
+      ]
+    }
+  ]
+}

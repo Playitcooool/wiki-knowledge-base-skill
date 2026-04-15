@@ -3,6 +3,60 @@
 Self-contained knowledge-base toolkit for Codex / Claude Code.  
 面向 Codex / Claude Code 的本地知识库构建与增量更新工具包。
 
+## Install
+
+No official certification is required.
+
+- Codex can use this repository as a whole-repo capability bundle.
+- Claude Code can use it as a local plugin or through a self-hosted marketplace.
+
+### Codex
+
+Clone the whole repo, then expose `skills/` to Codex native discovery.
+
+```bash
+git clone https://github.com/Playitcooool/wiki-knowledge-base-skill.git ~/.codex/vendor_imports/wiki-knowledge-base-skill
+mkdir -p ~/.agents/skills/wiki-knowledge-base
+ln -s ~/.codex/vendor_imports/wiki-knowledge-base-skill/skills ~/.agents/skills/wiki-knowledge-base/skills
+```
+
+Then restart Codex.
+
+Whole-repo install docs: [INSTALL.md](/Volumes/Samsung/Projects/knowledge-base/.codex/INSTALL.md)
+
+If your Codex build supports local plugin packages, the repository root also includes:
+
+- [plugin.json](/Volumes/Samsung/Projects/knowledge-base/.codex-plugin/plugin.json)
+- [commands](/Volumes/Samsung/Projects/knowledge-base/commands)
+
+That is the slash-command layer for `/kb:ingest`.
+
+### Claude Code
+
+Local session plugin:
+
+```bash
+claude --plugin-dir /path/to/wiki-knowledge-base-skill
+```
+
+Local or self-hosted marketplace:
+
+```text
+/plugin marketplace add /path/to/wiki-knowledge-base-skill
+```
+
+Or, after publishing:
+
+```text
+/plugin marketplace add https://github.com/Playitcooool/wiki-knowledge-base-skill
+/plugin install kb@knowledge-base
+```
+
+Claude marketplace files live at:
+
+- [plugin.json](/Volumes/Samsung/Projects/knowledge-base/.claude-plugin/plugin.json)
+- [marketplace.json](/Volumes/Samsung/Projects/knowledge-base/.claude-plugin/marketplace.json)
+
 ## Usage
 
 In Codex / Claude Code, use:
@@ -26,56 +80,6 @@ Behavior:
 - Build / update / sync intent: apply changes
 - Dependency / readiness intent: run doctor logic
 - Greenfield folder: initialize `raw/`, `pages/`, `pages/index.md`, `log.md` when needed
-
-## Install
-
-### Plugin
-
-Recommended if you want the explicit slash command `/kb:ingest`.
-
-Repo-local plugin:
-
-```bash
-# keep the repo structure as-is
-plugins/kb
-.agents/plugins/marketplace.json
-```
-
-Home-local plugin:
-
-```bash
-mkdir -p ~/plugins
-cp -R plugins/kb ~/plugins/kb
-mkdir -p ~/.agents/plugins
-```
-
-Then add this entry to `~/.agents/plugins/marketplace.json`:
-
-```json
-{
-  "name": "kb",
-  "source": {
-    "source": "local",
-    "path": "./plugins/kb"
-  },
-  "policy": {
-    "installation": "AVAILABLE",
-    "authentication": "ON_INSTALL"
-  },
-  "category": "Productivity"
-}
-```
-
-### Skill Only
-
-Use this if you want the underlying skill without the plugin command layer.
-
-```bash
-mkdir -p ~/.codex/skills
-cp -R skills/knowledge-base-maintainer ~/.codex/skills/knowledge-base-maintainer
-```
-
-Then invoke it from Codex with the installed skill name.
 
 ## Dependencies
 
@@ -118,12 +122,11 @@ graph TD
 
 ## Packaging
 
+- Root Codex package: [plugin.json](/Volumes/Samsung/Projects/knowledge-base/.codex-plugin/plugin.json)
+- Root Claude package: [plugin.json](/Volumes/Samsung/Projects/knowledge-base/.claude-plugin/plugin.json)
+- Root slash commands: [commands](/Volumes/Samsung/Projects/knowledge-base/commands)
 - Standalone skill: [`skills/knowledge-base-maintainer`](skills/knowledge-base-maintainer)
-- Explicit command plugin: [`plugins/kb`](plugins/kb)
-- Local marketplace entry: [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json)
-
-The plugin bundles the same skill so slash commands can explicitly invoke it.  
-plugin 内置同一份 skill，用于提供显式 slash command 入口。
+- Legacy nested Codex plugin: [`plugins/kb`](plugins/kb)
 
 ## Runtime
 

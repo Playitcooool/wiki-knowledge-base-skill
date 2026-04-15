@@ -8,7 +8,7 @@
       "name": "kb",
       "source": {
         "source": "local",
-        "path": "./plugins/kb"
+        "path": "."
       },
       "policy": {
         "installation": "AVAILABLE",

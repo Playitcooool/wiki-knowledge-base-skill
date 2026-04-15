@@ -1,0 +1,37 @@
+{
+  "name": "kb",
+  "version": "0.2.0",
+  "description": "Single slash command for building and updating a local markdown knowledge base",
+  "author": {
+    "name": "Playitcooool",
+    "url": "https://github.com/Playitcooool"
+  },
+  "homepage": "https://github.com/Playitcooool/wiki-knowledge-base-skill",
+  "repository": "https://github.com/Playitcooool/wiki-knowledge-base-skill",
+  "license": "MIT",
+  "keywords": [
+    "knowledge-base",
+    "obsidian",
+    "markdown",
+    "ingest",
+    "documents"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "KB",
+    "shortDescription": "One slash command for knowledge-base sync",
+    "longDescription": "Whole-repo Codex package for maintaining a markdown knowledge base with a single `/kb:ingest` command.",
+    "developerName": "Playitcooool",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/Playitcooool/wiki-knowledge-base-skill",
+    "privacyPolicyURL": "https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement",
+    "termsOfServiceURL": "https://docs.github.com/site-policy/github-terms/github-terms-of-service",
+    "defaultPrompt": [
+      "/kb:ingest"
+    ]
+  }
+}
