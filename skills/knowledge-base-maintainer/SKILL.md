@@ -6,7 +6,7 @@ description: Build and maintain an Obsidian-style knowledge base from source fil
 # Knowledge Base Maintainer
 
 ## Overview
-Maintain a three-layer knowledge base (`raw/`, `pages/`, `pages/index.md` + `log.md`) with incremental updates and auditable output. Prefer project-local conversion scripts when present.
+Maintain a three-layer knowledge base (`raw/`, `pages/`, `pages/index.md` + `log.md`) with incremental updates and auditable output, using bundled conversion scripts.
 
 ## Workflow
 1. Run ingest dry-run first:
@@ -19,7 +19,7 @@ python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
 ```
 3. If required conversion tooling is missing, run:
 ```bash
-python3 scripts/doctor.py
+python3 skills/knowledge-base-maintainer/scripts/doctor.py
 ```
 
 ## Greenfield Handling
@@ -34,7 +34,7 @@ python3 scripts/doctor.py
   - Added: source exists in `raw/` but no mapped page.
   - Updated: source mtime is newer than mapped page.
   - Deleted: mapped page references a missing source.
-- Converts sources through project-local `scripts/convert_source.py` when available.
+- Converts sources through bundled `scripts/convert_source.py`.
 - Generates/updates page frontmatter and required sections:
   - `Summary`
   - `Content`

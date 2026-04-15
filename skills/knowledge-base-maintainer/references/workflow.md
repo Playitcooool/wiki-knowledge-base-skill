@@ -49,9 +49,9 @@ After bootstrap, add source files to `raw/` and run `kb-ingest --apply` again.
   - Action: report conflict and keep source unprocessed.
 
 ## Conversion Dependency Policy
-- Preferred converter: repository-local `scripts/convert_source.py`.
+- Preferred converter: bundled `skills/knowledge-base-maintainer/scripts/convert_source.py`.
 - For PDF chain, converter policy should be:
   - Docling default
   - MinerU fallback
   - pypdf final fallback
-- Use `python3 scripts/doctor.py` to inspect tool availability.
+- Use `python3 skills/knowledge-base-maintainer/scripts/doctor.py` to inspect tool availability.

@@ -3,12 +3,8 @@
 Tools and a Codex skill for building and incrementally maintaining an Obsidian-friendly knowledge base from source files.
 
 ## What This Repository Includes
-- `scripts/convert_source.py`
-  Convert `md`, `txt`, `html`, `docx`, and `pdf` sources into Markdown.
-- `scripts/doctor.py`
-  Check local conversion-tool availability.
 - `skills/knowledge-base-maintainer/`
-  A publishable Codex skill for ingesting `raw/` sources, updating `pages/`, rebuilding `pages/index.md`, and appending `log.md`.
+  A publishable Codex skill for converting sources, checking tool availability, ingesting `raw/` sources, updating `pages/`, rebuilding `pages/index.md`, and appending `log.md`.
 - `raw/`, `pages/`, `pages/index.md`, `log.md`
   An example knowledge-base workspace.
 
@@ -17,11 +13,9 @@ Tools and a Codex skill for building and incrementally maintaining an Obsidian-f
 .
 ├── raw/                                   # Original source files
 ├── pages/                                 # Generated markdown knowledge pages
-├── scripts/
-│   ├── convert_source.py                  # Source -> markdown conversion
-│   └── doctor.py                          # Tool availability checks
 ├── skills/
 │   └── knowledge-base-maintainer/         # Publishable Codex skill
+│       └── scripts/                       # convert_source.py, doctor.py, kb-ingest.py, sync_kb.py
 ├── pages/index.md                         # Global knowledge-base entry page
 └── log.md                                 # Local update log (not committed)
 ```
@@ -30,14 +24,14 @@ Tools and a Codex skill for building and incrementally maintaining an Obsidian-f
 Check local tool availability:
 
 ```bash
-python3 scripts/doctor.py
+python3 skills/knowledge-base-maintainer/scripts/doctor.py
 ```
 
 Convert a single source file:
 
 ```bash
-python3 scripts/convert_source.py raw/example.docx -o /tmp/example.md
-python3 scripts/convert_source.py raw/example.pdf -o /tmp/example.md
+python3 skills/knowledge-base-maintainer/scripts/convert_source.py raw/example.docx -o /tmp/example.md
+python3 skills/knowledge-base-maintainer/scripts/convert_source.py raw/example.pdf -o /tmp/example.md
 ```
 
 Run ingest dry-run (safe preview):
@@ -69,11 +63,17 @@ Clone the repository, then install or copy `skills/knowledge-base-maintainer` in
 
 If you use the built-in skill installer, point it at this repository path after publishing.
 
+Install Python dependency for bundled converter:
+
+```bash
+python3 -m pip install -r skills/knowledge-base-maintainer/requirements.txt
+```
+
 ## Validation
 Representative checks:
 
 ```bash
-python3 -m py_compile scripts/convert_source.py scripts/doctor.py
+python3 -m py_compile skills/knowledge-base-maintainer/scripts/convert_source.py skills/knowledge-base-maintainer/scripts/doctor.py
 python3 -m py_compile skills/knowledge-base-maintainer/scripts/sync_kb.py
 python3 -m py_compile skills/knowledge-base-maintainer/scripts/kb-ingest.py
 python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .

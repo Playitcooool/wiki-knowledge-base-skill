@@ -255,7 +255,7 @@ def convert_with_project_tool(
     output_md: Path,
     media_dir: Path,
 ) -> None:
-    converter = root / "scripts" / "convert_source.py"
+    converter = Path(__file__).resolve().parent / "convert_source.py"
     suffix = source_abs.suffix.lower()
     if not converter.exists():
         if suffix in {".md", ".markdown", ".txt"}:
