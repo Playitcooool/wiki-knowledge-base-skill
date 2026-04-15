@@ -84,6 +84,16 @@ Conversion path:
 - HTML and DOCX: `pandoc`
 - PDF: `docling -> mineru -> pypdf`
 
+### Page Categories
+
+Generated pages are written under `pages/` with one primary category:
+
+- `research`: papers, reports, technical investigations, experiment writeups
+- `guides`: explainers, comparisons, tool docs, workflow guides
+- `notes`: reading notes, informal notes, meeting notes, or anything still to be confirmed
+
+If classification is unclear, the system falls back to `notes`.
+
 ### Architecture
 
 Architecture inspiration: [Andrej Karpathy, LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
@@ -183,6 +193,16 @@ pip install -r skills/knowledge-base-maintainer/requirements-optional.txt
 
 - HTML / DOCX：`pandoc`
 - PDF：`docling -> mineru -> pypdf`
+
+### 页面分类
+
+生成后的页面会写入 `pages/`，并且只归入一个主分类：
+
+- `research`：论文、报告、技术调研、实验记录
+- `guides`：解释文、对比文、工具文档、工作流指南
+- `notes`：读书笔记、零散笔记、会议记录，或者暂时无法确认分类的内容
+
+如果分类不明确，系统会默认回落到 `notes`。
 
 ### 架构
 
