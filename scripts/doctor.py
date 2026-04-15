@@ -23,7 +23,9 @@ def main() -> int:
     checks = [
         ("pandoc", bool(shutil.which("pandoc")), "DOCX/HTML -> Markdown (+ media)"),
         ("textutil", bool(shutil.which("textutil")), "macOS document utility"),
-        ("pypdf", has_python_module("pypdf"), "PDF text/image extraction"),
+        ("docling", bool(shutil.which("docling")), "Preferred PDF conversion backend"),
+        ("mineru", bool(shutil.which("mineru")), "Fallback PDF conversion backend"),
+        ("pypdf", has_python_module("pypdf"), "Final PDF text/image fallback"),
     ]
 
     print("Knowledge Base Tool Doctor")
@@ -34,10 +36,11 @@ def main() -> int:
     print()
     print("Project defaults:")
     print("- DOCX -> Markdown: pandoc with media extraction")
-    print("- PDF -> Markdown: pypdf text extraction with embedded image export")
-    print("- Scanned PDF OCR: not configured yet")
+    print("- PDF -> Markdown: Docling (default) -> MinerU (fallback) -> pypdf (last fallback)")
+    print("- Scanned PDF OCR: handled by Docling/MinerU when installed")
 
-    return 0 if all(ok for _, ok, _ in checks[:2]) and checks[2][1] else 1
+    essential_ok = checks[0][1] and checks[1][1] and checks[4][1]
+    return 0 if essential_ok else 1
 
 
 if __name__ == "__main__":

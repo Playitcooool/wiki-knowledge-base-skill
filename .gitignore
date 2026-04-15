@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 .DS_Store
+.converted_media/
+.obsidian/workspace.json

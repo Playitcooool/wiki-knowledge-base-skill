@@ -10,7 +10,7 @@ Supported inputs:
 
 Local-first strategy:
 - DOCX and HTML: pandoc
-- PDF: pypdf text extraction
+- PDF: Docling by default, MinerU fallback, pypdf as final fallback
 
 This script only performs source conversion. It does not update pages/,
 index.md, or log.md.
@@ -143,6 +143,66 @@ def normalize_extracted_text(text: str) -> str:
     return "\n".join(cleaned).strip() + "\n"
 
 
+def build_local_asset_map(base_dir: Path, media_config: MediaConfig) -> dict[str, str]:
+    mapped: dict[str, str] = {}
+    if not base_dir.exists():
+        return mapped
+
+    for asset_path in base_dir.rglob("*"):
+        if not asset_path.is_file():
+            continue
+        rel_from_base = asset_path.relative_to(base_dir).as_posix()
+        mapped[rel_from_base] = to_markdown_path(asset_path, media_config.reference_dir)
+        mapped[asset_path.as_posix()] = to_markdown_path(
+            asset_path, media_config.reference_dir
+        )
+
+    return mapped
+
+
+def rewrite_markdown_asset_links(markdown: str, asset_map: dict[str, str]) -> str:
+    if not asset_map:
+        return markdown
+
+    def normalize_key(raw: str) -> str:
+        path = raw.strip().strip("'\"")
+        path = path.split("#", 1)[0]
+        path = path.split("?", 1)[0]
+        return Path(path).as_posix()
+
+    def replace_md_link(match: re.Match[str]) -> str:
+        alt_text = match.group(1)
+        link_target = match.group(2).strip()
+        if link_target.startswith(("http://", "https://", "data:", "mailto:", "#")):
+            return match.group(0)
+
+        mapped = asset_map.get(normalize_key(link_target))
+        if not mapped:
+            return match.group(0)
+        return f"![{alt_text}]({mapped})"
+
+    def replace_html_img(match: re.Match[str]) -> str:
+        src = match.group(1)
+        if src.startswith(("http://", "https://", "data:", "mailto:", "#")):
+            return match.group(0)
+
+        mapped = asset_map.get(normalize_key(src))
+        if not mapped:
+            return match.group(0)
+        return match.group(0).replace(src, mapped, 1)
+
+    markdown = re.sub(r"!\[([^\]]*)\]\(([^)]+)\)", replace_md_link, markdown)
+    markdown = re.sub(r'<img\b[^>]*\bsrc="([^"]+)"', replace_html_img, markdown)
+    return markdown
+
+
+def has_meaningful_content(markdown: str) -> bool:
+    plain = re.sub(r"\s+", "", markdown)
+    if len(plain) >= 10:
+        return True
+    return bool(re.search(r"!\[[^\]]*\]\(|<img\b", markdown))
+
+
 def normalize_image_extension(name: str) -> str:
     suffix = Path(name).suffix.lower()
     if suffix and re.fullmatch(r"\.[a-z0-9]{1,8}", suffix):
@@ -236,6 +296,146 @@ def convert_pdf(path: Path, media_config: MediaConfig) -> str:
     return markdown
 
 
+def run_docling_pdf(path: Path, media_config: MediaConfig) -> str:
+    docling = shutil.which("docling")
+    if not docling:
+        raise ConversionError("docling is not installed locally.")
+
+    output_root = media_config.media_dir / "docling"
+    output_root.mkdir(parents=True, exist_ok=True)
+    output_md = output_root / f"{sanitize_path_component(path.stem)}.md"
+
+    attempts = [
+        [
+            docling,
+            str(path),
+            "--from",
+            "pdf",
+            "--to",
+            "md",
+            "--image-export-mode",
+            "referenced",
+            "--output",
+            str(output_root),
+        ],
+        [
+            docling,
+            str(path),
+            "--to",
+            "md",
+            "--image-export-mode",
+            "referenced",
+            "--output",
+            str(output_md),
+        ],
+        [
+            docling,
+            str(path),
+            "--format",
+            "markdown",
+            "--output",
+            str(output_md),
+        ],
+    ]
+
+    errors: list[str] = []
+    for cmd in attempts:
+        result = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            stderr = result.stderr.strip() or "unknown docling error"
+            errors.append(stderr)
+            continue
+
+        candidates = [output_md] + sorted(output_root.rglob("*.md"))
+        for markdown_path in candidates:
+            if not markdown_path.exists() or not markdown_path.is_file():
+                continue
+            markdown = markdown_path.read_text(encoding="utf-8")
+            if not has_meaningful_content(markdown):
+                continue
+            asset_map = build_local_asset_map(markdown_path.parent, media_config)
+            return rewrite_markdown_asset_links(markdown, asset_map)
+
+        errors.append("docling finished without a usable markdown output.")
+
+    joined_errors = "; ".join(dict.fromkeys(errors)) or "unknown docling failure"
+    raise ConversionError(f"docling conversion failed: {joined_errors}")
+
+
+def run_mineru_pdf(path: Path, media_config: MediaConfig) -> str:
+    mineru = shutil.which("mineru")
+    if not mineru:
+        raise ConversionError("mineru is not installed locally.")
+
+    output_root = media_config.media_dir / "mineru"
+    output_root.mkdir(parents=True, exist_ok=True)
+    cmd = [
+        mineru,
+        "-p",
+        str(path),
+        "-o",
+        str(output_root),
+        "-b",
+        "pipeline",
+        "-m",
+        "auto",
+    ]
+    result = subprocess.run(
+        cmd,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        stderr = result.stderr.strip() or "unknown mineru error"
+        raise ConversionError(f"mineru conversion failed: {stderr}")
+
+    markdown_candidates = sorted(output_root.rglob("*.md"))
+    for markdown_path in markdown_candidates:
+        if not markdown_path.is_file():
+            continue
+        markdown = markdown_path.read_text(encoding="utf-8")
+        if not has_meaningful_content(markdown):
+            continue
+        asset_map = build_local_asset_map(markdown_path.parent, media_config)
+        return rewrite_markdown_asset_links(markdown, asset_map)
+
+    raise ConversionError(
+        "mineru finished without a usable markdown output."
+    )
+
+
+def convert_pdf_with_backends(path: Path, media_config: MediaConfig) -> str:
+    backend_errors: list[str] = []
+
+    try:
+        return run_docling_pdf(path, media_config)
+    except ConversionError as exc:
+        backend_errors.append(f"docling: {exc}")
+
+    try:
+        return run_mineru_pdf(path, media_config)
+    except ConversionError as exc:
+        backend_errors.append(f"mineru: {exc}")
+
+    try:
+        fallback_markdown = convert_pdf(path, media_config)
+    except ConversionError as exc:
+        backend_errors.append(f"pypdf: {exc}")
+        raise ConversionError("; ".join(backend_errors)) from exc
+
+    fallback_note = (
+        "> Note: Docling and MinerU were unavailable or failed. "
+        "Used pypdf fallback extraction.\n\n"
+    )
+    return fallback_note + fallback_markdown
+
+
 def convert_source(
     path: Path,
     output_path: Path | None = None,
@@ -254,7 +454,7 @@ def convert_source(
         return run_pandoc(path, from_format="html")
 
     if suffix in PDF_EXTENSIONS:
-        return convert_pdf(path, media_config=media_config)
+        return convert_pdf_with_backends(path, media_config=media_config)
 
     raise ConversionError(
         f"unsupported source type: {suffix or '[no extension]'}. "
