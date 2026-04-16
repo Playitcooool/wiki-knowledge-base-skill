@@ -1,4 +1,0 @@
-interface:
-  display_name: "Knowledge Base Maintainer"
-  short_description: "Build and sync markdown knowledge bases from source files"
-  default_prompt: "Use /kb:ingest for both initial bootstrap and ongoing updates. Handle greenfield roots by initializing raw/, pages/, pages/index.md, and log.md when write intent is requested."

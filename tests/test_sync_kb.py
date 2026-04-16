@@ -17,9 +17,6 @@ DOC_PATHS = [
     REPO_ROOT / "commands/ingest.md",
     REPO_ROOT / "skills/knowledge-base-maintainer/SKILL.md",
     REPO_ROOT / "skills/knowledge-base-maintainer/references/workflow.md",
-    REPO_ROOT / "plugins/kb/commands/ingest.md",
-    REPO_ROOT / "plugins/kb/skills/knowledge-base-maintainer/SKILL.md",
-    REPO_ROOT / "plugins/kb/skills/knowledge-base-maintainer/references/workflow.md",
 ]
 REAL_SCRIPT_PREFIX = "skills/knowledge-base-maintainer/scripts/"
 INTERACTION_DOC_PATHS = [
@@ -27,12 +24,10 @@ INTERACTION_DOC_PATHS = [
     REPO_ROOT / "commands/ingest.md",
     REPO_ROOT / "skills/knowledge-base-maintainer/SKILL.md",
     REPO_ROOT / "skills/knowledge-base-maintainer/references/workflow.md",
-    REPO_ROOT / "plugins/kb/commands/ingest.md",
-    REPO_ROOT / "plugins/kb/skills/knowledge-base-maintainer/SKILL.md",
-    REPO_ROOT / "plugins/kb/skills/knowledge-base-maintainer/references/workflow.md",
 ]
 AGENT_PROMPT_PATH = REPO_ROOT / "skills/knowledge-base-maintainer/agents/openai.yaml"
 CURSOR_PLUGIN_MANIFEST = REPO_ROOT / ".cursor-plugin/plugin.json"
+LEGACY_PLUGIN_DIR = REPO_ROOT / "plugins/kb"
 
 
 def run_ingest(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -219,6 +214,11 @@ class SyncKbTests(unittest.TestCase):
         self.assertIn("#### Cursor", readme_text)
         self.assertIn("/kb:ingest", readme_text)
         self.assertIn("not published in Cursor Marketplace yet", readme_text)
+
+    def test_legacy_nested_plugin_package_has_been_removed(self) -> None:
+        self.assertFalse(LEGACY_PLUGIN_DIR.exists())
+        for path in DOC_PATHS + INTERACTION_DOC_PATHS:
+            self.assertNotIn("plugins/kb/", str(path))
 
 
 if __name__ == "__main__":
