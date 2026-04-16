@@ -8,25 +8,27 @@ description: Build and maintain an Obsidian-style knowledge base from source fil
 ## Overview
 Maintain a three-layer knowledge base (`raw/`, `pages/`, `pages/index.md` + `log.md`) with incremental updates and auditable output, using bundled conversion scripts.
 
+For ordinary users, `preview` and `apply` are backend execution modes. The LLM should always check what would change first, auto-apply when the check is clean, and ask before risky writes. Any delete operation must be confirmed before apply continues.
+
 ## Workflow
 Public entrypoint: `/kb:ingest`
 
 Implementation detail:
-- preview mode -> `python3 scripts/kb-ingest.py --root .`
-- apply mode -> `python3 scripts/kb-ingest.py --root . --apply`
-- dependency check -> `python3 scripts/doctor.py`
+- preview mode -> `python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .`
+- apply mode -> `python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply`
+- dependency check -> `python3 skills/knowledge-base-maintainer/scripts/doctor.py`
 
-1. Run ingest preview first:
+1. Always check what would change first:
 ```bash
-python3 scripts/kb-ingest.py --root .
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
 ```
-2. Apply ingest changes:
+2. Auto-apply only when the preview is clean:
 ```bash
-python3 scripts/kb-ingest.py --root . --apply
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
 ```
 3. If required conversion tooling is missing, run:
 ```bash
-python3 scripts/doctor.py
+python3 skills/knowledge-base-maintainer/scripts/doctor.py
 ```
 
 ## Greenfield Handling
@@ -41,7 +43,7 @@ python3 scripts/doctor.py
   - Added: source exists in `raw/` but no mapped page.
   - Updated: source mtime is newer than mapped page.
   - Deleted: mapped page references a missing source.
-- Converts sources through bundled `scripts/convert_source.py`.
+- Converts sources through bundled `skills/knowledge-base-maintainer/scripts/convert_source.py`.
 - Generates/updates page frontmatter and required sections:
   - `Summary`
   - `Content`
@@ -51,9 +53,11 @@ python3 scripts/doctor.py
 - Appends a dated entry to `log.md`.
 
 ## Safety Rules
-- Keep preview mode as default unless the user clearly asks to write.
+- Always check first before deciding whether to apply.
+- Auto-apply only when the check is clean and the user asked to build or update.
+- Ask the user before risky writes, including any delete operation.
 - Skip auto-update when page frontmatter `status` is not `generated`.
-- Treat possible renames as conflicts and skip destructive deletion.
+- Treat possible renames as conflicts unless they can be migrated safely, and ask when ambiguity remains.
 - Report conversion failures as conflicts; do not fabricate missing content.
 
 ## Classification Rules
@@ -66,4 +70,4 @@ python3 scripts/doctor.py
 
 ## References
 - Read [workflow](references/workflow.md) for conflict triage and expected outputs.
-- Use `/kb:ingest` as the public entry point, with `scripts/kb-ingest.py` and `scripts/sync_kb.py` as the implementation.
+- Use `/kb:ingest` as the public entry point, with `skills/knowledge-base-maintainer/scripts/kb-ingest.py` and `skills/knowledge-base-maintainer/scripts/sync_kb.py` as the repository implementation.
