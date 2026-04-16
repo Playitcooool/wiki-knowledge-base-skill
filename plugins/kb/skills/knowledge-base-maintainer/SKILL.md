@@ -10,6 +10,11 @@ Maintain a three-layer knowledge base (`raw/`, `pages/`, `pages/index.md` + `log
 
 For ordinary users, `preview` and `apply` are backend execution modes. The LLM should always check what would change first, auto-apply when the check is clean, and ask before risky writes. Any delete operation must be confirmed before apply continues.
 
+User-facing policy:
+- Keep `/kb:ingest` as the only public entrypoint.
+- Treat capability checks and dependency installs as follow-up guidance, not as the first thing the user has to learn.
+- Prefer the lightest supported path first, and only surface extra installation steps when the input actually needs them.
+
 ## Workflow
 Public entrypoint: `/kb:ingest`
 
@@ -26,10 +31,14 @@ python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
 ```bash
 python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
 ```
-3. If required conversion tooling is missing, run:
+3. If preview reports a conversion capability gap, run:
 ```bash
 python3 skills/knowledge-base-maintainer/scripts/doctor.py
 ```
+4. Tell the user only the install step needed for the current file type:
+   - Base support: `md` / `txt` plus basic PDF fallback from `requirements.txt`
+   - On-demand support: `.docx` / `.html` via `pandoc`
+   - Enhanced OCR PDF support: `requirements-optional.txt`
 
 ## Greenfield Handling
 - If `raw/` does not exist yet:
@@ -59,6 +68,7 @@ python3 skills/knowledge-base-maintainer/scripts/doctor.py
 - Skip auto-update when page frontmatter `status` is not `generated`.
 - Treat possible renames as conflicts unless they can be migrated safely, and ask when ambiguity remains.
 - Report conversion failures as conflicts; do not fabricate missing content.
+- Phrase conversion failures in capability terms when possible, for example missing DOCX support or missing OCR PDF support, instead of exposing backend selection details by default.
 
 ## Classification Rules
 - Classify to exactly one primary category:

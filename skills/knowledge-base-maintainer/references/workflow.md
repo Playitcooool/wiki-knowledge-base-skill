@@ -17,6 +17,7 @@ Expected output fields:
 - `conflicts`
 
 If the check is clean, the LLM should auto-apply. If the check shows risk, the LLM should ask the user before continuing.
+If the check shows a conversion capability gap, the LLM should keep `/kb:ingest` as the user-facing entrypoint and use the doctor output only to recommend the smallest required install step.
 
 ## Apply Mode
 Apply is a backend write step. The LLM should only use it after a clean check or after the user confirms risky changes.
@@ -58,6 +59,10 @@ After bootstrap, add source files to `raw/` and run `/kb:ingest` again with writ
 
 ## Conversion Dependency Policy
 - Preferred converter: bundled `scripts/convert_source.py`.
+- Capability tiers:
+  - Base support: `md` / `txt` plus basic PDF fallback from `requirements.txt`
+  - On-demand support: `.docx` / `.html` via `pandoc`
+  - Enhanced OCR PDF support: `requirements-optional.txt`
 - For PDF chain, converter policy should be:
   - Docling default
   - MinerU fallback
