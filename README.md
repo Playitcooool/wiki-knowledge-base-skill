@@ -37,6 +37,22 @@ After publishing:
 /plugin install kb@knowledge-base
 ```
 
+#### Cursor
+
+For local testing, install the repository as a local Cursor plugin. The plugin is not published in Cursor Marketplace yet.
+
+```bash
+git clone https://github.com/Playitcooool/wiki-knowledge-base-skill.git ~/src/wiki-knowledge-base-skill
+mkdir -p ~/.cursor/plugins/local
+ln -s ~/src/wiki-knowledge-base-skill ~/.cursor/plugins/local/kb
+```
+
+Then reload Cursor and use:
+
+```text
+/kb:ingest
+```
+
 ### Use
 
 Use:
@@ -154,6 +170,22 @@ claude --plugin-dir /path/to/wiki-knowledge-base-skill
 ```text
 /plugin marketplace add https://github.com/Playitcooool/wiki-knowledge-base-skill
 /plugin install kb@knowledge-base
+```
+
+#### Cursor
+
+如果是本地测试，把仓库作为本地 Cursor plugin 安装。当前还没有发布到 Cursor Marketplace。
+
+```bash
+git clone https://github.com/Playitcooool/wiki-knowledge-base-skill.git ~/src/wiki-knowledge-base-skill
+mkdir -p ~/.cursor/plugins/local
+ln -s ~/src/wiki-knowledge-base-skill ~/.cursor/plugins/local/kb
+```
+
+然后重载 Cursor，统一入口仍然是：
+
+```text
+/kb:ingest
 ```
 
 ### 使用

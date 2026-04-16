@@ -1,0 +1,22 @@
+{
+  "name": "kb",
+  "displayName": "KB",
+  "version": "0.2.0",
+  "description": "Build and maintain a local markdown knowledge base based on Karpathy's LLM Wiki",
+  "author": {
+    "name": "Playitcooool",
+    "url": "https://github.com/Playitcooool"
+  },
+  "homepage": "https://github.com/Playitcooool/wiki-knowledge-base-skill",
+  "repository": "https://github.com/Playitcooool/wiki-knowledge-base-skill",
+  "license": "MIT",
+  "keywords": [
+    "knowledge-base",
+    "obsidian",
+    "markdown",
+    "ingest",
+    "documents"
+  ],
+  "skills": "./skills/",
+  "commands": "./commands/"
+}

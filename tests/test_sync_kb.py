@@ -32,6 +32,7 @@ INTERACTION_DOC_PATHS = [
     REPO_ROOT / "plugins/kb/skills/knowledge-base-maintainer/references/workflow.md",
 ]
 AGENT_PROMPT_PATH = REPO_ROOT / "skills/knowledge-base-maintainer/agents/openai.yaml"
+CURSOR_PLUGIN_MANIFEST = REPO_ROOT / ".cursor-plugin/plugin.json"
 
 
 def run_ingest(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -205,6 +206,19 @@ class SyncKbTests(unittest.TestCase):
         self.assertIn("auto-apply", text)
         self.assertIn("ask", text)
         self.assertIn("delete", text)
+
+    def test_cursor_plugin_manifest_and_docs_exist_for_local_support(self) -> None:
+        self.assertTrue(CURSOR_PLUGIN_MANIFEST.is_file())
+
+        manifest_text = CURSOR_PLUGIN_MANIFEST.read_text(encoding="utf-8")
+        self.assertIn('"name": "kb"', manifest_text)
+        self.assertIn('"skills": "./skills/"', manifest_text)
+        self.assertIn('"commands": "./commands/"', manifest_text)
+
+        readme_text = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("#### Cursor", readme_text)
+        self.assertIn("/kb:ingest", readme_text)
+        self.assertIn("not published in Cursor Marketplace yet", readme_text)
 
 
 if __name__ == "__main__":
