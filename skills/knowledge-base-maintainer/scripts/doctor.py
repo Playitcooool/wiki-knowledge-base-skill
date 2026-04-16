@@ -39,17 +39,24 @@ def main() -> int:
 
     print()
     print("Project defaults:")
-    print("- DOCX -> Markdown: pandoc with media extraction")
-    print("- HTML -> Markdown: pandoc")
-    print("- PDF -> Markdown: Docling (default) -> MinerU (fallback) -> pypdf (last fallback)")
-    print("- Scanned PDF OCR: handled by Docling/MinerU when installed")
+    print("- Single entrypoint: run /kb:ingest, then inspect capability guidance only if conversion is blocked")
+    print("- Base support: md/txt ingestion + basic PDF fallback")
+    print("- On-demand support: DOCX/HTML import via pandoc")
+    print("- Enhanced PDF path: Docling (default) -> MinerU (fallback) -> pypdf (last fallback)")
+    print("- Scanned PDF OCR: available only when Docling or MinerU is installed")
     print()
     print("Capability tiers:")
     print("- Out of the box: md/txt ingestion works without extra dependencies")
-    print(f"- HTML/DOCX support: {'ready' if pandoc_ok else 'install pandoc'}")
-    print(f"- Basic PDF fallback: {'ready' if pypdf_ok else 'pip install -r requirements.txt'}")
     print(
-        "- Recommended PDF/OCR path: "
+        "- Base support: "
+        + ("md/txt ingestion + basic PDF fallback" if pypdf_ok else "install `pip install -r requirements.txt` for basic PDF fallback")
+    )
+    print(
+        "- On-demand DOCX support: "
+        + ("ready" if pandoc_ok else "install pandoc")
+    )
+    print(
+        "- Enhanced OCR PDF support: "
         + ("ready" if docling_ok or mineru_ok else "pip install -r requirements-optional.txt")
     )
 

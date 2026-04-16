@@ -43,13 +43,19 @@ class MediaConfig:
     reference_dir: Path
 
 
+def missing_capability_message(capability: str, install_hint: str) -> str:
+    return f"{capability} is not installed. Install {install_hint} and retry."
+
+
 def get_pdf_reader():
     try:
         from pypdf import PdfReader
     except ModuleNotFoundError as exc:
         raise ConversionError(
-            "pypdf is not installed locally. Install the minimal Python requirements "
-            "to enable PDF fallback conversion."
+            missing_capability_message(
+                "Basic PDF support",
+                "`pip install -r requirements.txt`",
+            )
         ) from exc
     return PdfReader
 
@@ -101,8 +107,16 @@ def run_pandoc(
 ) -> str:
     pandoc = shutil.which("pandoc")
     if not pandoc:
+        if from_format == "docx":
+            raise ConversionError(
+                missing_capability_message("DOCX support", "pandoc")
+            )
+        if from_format == "html":
+            raise ConversionError(
+                missing_capability_message("HTML import support", "pandoc")
+            )
         raise ConversionError(
-            "pandoc is required for this file type but is not installed locally."
+            missing_capability_message("Rich document support", "pandoc")
         )
 
     working_dir = media_config.reference_dir if media_config else Path.cwd()
@@ -437,6 +451,12 @@ def convert_pdf_with_backends(path: Path, media_config: MediaConfig) -> str:
         fallback_markdown = convert_pdf(path, media_config)
     except ConversionError as exc:
         backend_errors.append(f"pypdf: {exc}")
+        detail = str(exc)
+        if "very little text" in detail or "needs OCR" in detail:
+            raise ConversionError(
+                "This PDF appears to need OCR support. Install optional PDF/OCR "
+                "dependencies with `pip install -r requirements-optional.txt` and retry."
+            ) from exc
         raise ConversionError("; ".join(backend_errors)) from exc
 
     fallback_note = (
