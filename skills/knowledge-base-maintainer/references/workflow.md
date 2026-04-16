@@ -1,12 +1,12 @@
 # Workflow Reference
 
-## Dry-Run First
-Use `/kb:ingest` in preview mode to inspect changes without writing files.
+## Check First
+Use `/kb:ingest` to always check what would change first before the LLM decides whether to apply.
 
 Implementation detail:
 
 ```bash
-python3 scripts/kb-ingest.py --root .
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
 ```
 
 Expected output fields:
@@ -16,19 +16,23 @@ Expected output fields:
 - `processed pages`
 - `conflicts`
 
+If the check is clean, the LLM should auto-apply. If the check shows risk, the LLM should ask the user before continuing.
+
 ## Apply Mode
-When conflicts are acceptable, use `/kb:ingest` with explicit write intent.
+Apply is a backend write step. The LLM should only use it after a clean check or after the user confirms risky changes.
 
 Implementation detail:
 
 ```bash
-python3 scripts/kb-ingest.py --root . --apply
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
 ```
 
 Apply mode updates:
 - `pages/*`
 - `pages/index.md`
 - `log.md`
+
+Delete operations are never silent. If apply would delete generated pages or asset directories, the LLM must ask for confirmation first.
 
 ## Greenfield Environment
 If the directory has not been initialized yet (no `raw/`):
@@ -44,13 +48,13 @@ After bootstrap, add source files to `raw/` and run `/kb:ingest` again with writ
 ## Conflict Types
 - Possible rename:
   - Trigger: deleted source and added source share same normalized stem.
-  - Action: do not auto-delete old page; confirm with user.
+  - Action: if rename is unambiguous, migrate safely; otherwise ask the user before apply.
 - Manual page protection:
   - Trigger: mapped page has `status` not equal to `generated`.
-  - Action: skip overwrite and report conflict.
+  - Action: skip overwrite, report conflict, and ask if the user wants to proceed with other safe changes.
 - Conversion failure:
   - Trigger: converter unavailable or extraction failed.
-  - Action: report conflict and keep source unprocessed.
+  - Action: report conflict, keep source unprocessed, and ask only if user input is needed to continue.
 
 ## Conversion Dependency Policy
 - Preferred converter: bundled `scripts/convert_source.py`.
@@ -58,4 +62,4 @@ After bootstrap, add source files to `raw/` and run `/kb:ingest` again with writ
   - Docling default
   - MinerU fallback
   - pypdf final fallback
-- Use `python3 scripts/doctor.py` to inspect tool availability.
+- Use `python3 skills/knowledge-base-maintainer/scripts/doctor.py` to inspect tool availability.

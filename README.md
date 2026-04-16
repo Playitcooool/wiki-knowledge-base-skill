@@ -56,12 +56,21 @@ Typical intents:
 
 Behavior:
 
-- Preview or inspect intent: preview first
-- Build, update, or sync intent: apply changes
+- Always check what would change first
+- Auto-apply when the check is clean
+- Ask before risky writes, especially delete operations
 - Dependency question: run doctor logic
 - Greenfield folder: initialize `raw/`, `pages/`, `pages/index.md`, and `log.md` when needed
 
 The model can also infer this skill from user intent even without the explicit slash command, but `/kb:ingest` is the clearest path.You can check the graph in obsidian.
+
+For direct local execution from this repository, run:
+
+```bash
+python3 skills/knowledge-base-maintainer/scripts/doctor.py
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
+```
 
 ### Dependencies
 
@@ -166,13 +175,22 @@ claude --plugin-dir /path/to/wiki-knowledge-base-skill
 
 行为规则：
 
-- 用户只是查看、预检、审阅时：先走 preview
-- 用户明确要构建、更新、同步时：走 apply
+- 始终先检查会发生什么变化
+- 检查结果干净时自动 apply
+- 遇到高风险写入，尤其是 delete 时先询问用户
 - 用户在问依赖或转换能力时：先走 doctor 逻辑
 - 绿地目录下：按需初始化 `raw/`、`pages/`、`pages/index.md`、`log.md`
 
 即使用户不显式输入 `/kb:ingest`，模型也可以根据意图命中这个 skill，但显式命令最稳定。
 完成之后可以在obsidian看到节点之间的依赖关系。
+
+如果你是在这个仓库里直接运行脚本，请使用：
+
+```bash
+python3 skills/knowledge-base-maintainer/scripts/doctor.py
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root .
+python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
+```
 
 ### 依赖
 
