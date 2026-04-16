@@ -1,6 +1,6 @@
 # wiki-knowledge-base-skill
 
-Build and maintain a local knowledge base based on Karpathy's LLM Wiki.
+Build and maintain a local obsidian knowledge base with based on Karpathy's LLM Wiki.
 
 ## English
 
@@ -61,7 +61,7 @@ Behavior:
 - Dependency question: run doctor logic
 - Greenfield folder: initialize `raw/`, `pages/`, `pages/index.md`, and `log.md` when needed
 
-The model can also infer this skill from user intent even without the explicit slash command, but `/kb:ingest` is the clearest path.
+The model can also infer this skill from user intent even without the explicit slash command, but `/kb:ingest` is the clearest path.You can check the graph in obsidian.
 
 ### Dependencies
 
@@ -172,6 +172,7 @@ claude --plugin-dir /path/to/wiki-knowledge-base-skill
 - 绿地目录下：按需初始化 `raw/`、`pages/`、`pages/index.md`、`log.md`
 
 即使用户不显式输入 `/kb:ingest`，模型也可以根据意图命中这个 skill，但显式命令最稳定。
+完成之后可以在obsidian看到节点之间的依赖关系。
 
 ### 依赖
 
