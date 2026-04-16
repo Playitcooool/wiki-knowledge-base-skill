@@ -60,9 +60,14 @@ After bootstrap, add source files to `raw/` and run `/kb:ingest` again with writ
 ## Conversion Dependency Policy
 - Preferred converter: bundled `scripts/convert_source.py`.
 - Capability tiers:
-  - Base support: `md` / `txt` plus basic PDF fallback from `requirements.txt`
-  - On-demand support: `.docx` / `.html` via `pandoc`
+  - Base support: `md` / `txt`
+  - Default rich-document ingestion: `requirements-markitdown.txt`
+  - Local `.docx` / `.html` fallback: `pandoc`
   - Enhanced OCR PDF support: `requirements-optional.txt`
+- Rich-document routing policy:
+  - `MarkItDown` first for supported rich-document formats
+  - `pandoc` fallback for `.docx` / `.html` when `MarkItDown` fails after it is installed
+  - OCR fallback chain for thin scanned PDFs
 - For PDF chain, converter policy should be:
   - Docling default
   - MinerU fallback

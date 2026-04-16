@@ -9,8 +9,9 @@ Supported inputs:
 - .pdf
 
 Local-first strategy:
-- DOCX and HTML: pandoc
-- PDF: Docling by default, MinerU fallback, pypdf as final fallback
+- Plain text: direct read
+- Rich documents: MarkItDown by default
+- PDF OCR fallback: Docling by default, MinerU fallback, pypdf as final fallback
 
 This script only performs source conversion. It does not update pages/,
 index.md, or log.md.
@@ -19,6 +20,7 @@ index.md, or log.md.
 from __future__ import annotations
 
 import argparse
+import importlib
 import os
 import re
 import shutil
@@ -31,6 +33,7 @@ from pathlib import Path
 TEXT_EXTENSIONS = {".md", ".markdown", ".txt"}
 PANDOC_EXTENSIONS = {".docx", ".html", ".htm"}
 PDF_EXTENSIONS = {".pdf"}
+MARKITDOWN_EXTENSIONS = PANDOC_EXTENSIONS | PDF_EXTENSIONS
 
 
 class ConversionError(RuntimeError):
@@ -45,6 +48,25 @@ class MediaConfig:
 
 def missing_capability_message(capability: str, install_hint: str) -> str:
     return f"{capability} is not installed. Install {install_hint} and retry."
+
+
+def get_markitdown_converter():
+    try:
+        module = importlib.import_module("markitdown")
+    except ModuleNotFoundError as exc:
+        raise ConversionError(
+            missing_capability_message(
+                "MarkItDown rich-document support",
+                "`pip install -r requirements-markitdown.txt`",
+            )
+        ) from exc
+
+    markitdown_cls = getattr(module, "MarkItDown", None)
+    if markitdown_cls is None:
+        raise ConversionError(
+            "MarkItDown is installed but does not expose the expected `MarkItDown` API."
+        )
+    return markitdown_cls()
 
 
 def get_pdf_reader():
@@ -146,6 +168,23 @@ def run_pandoc(
         stderr = result.stderr.strip() or "unknown pandoc error"
         raise ConversionError(f"pandoc conversion failed: {stderr}")
     return result.stdout
+
+
+def normalize_markitdown_output(markdown: str) -> str:
+    return normalize_extracted_text(markdown)
+
+
+def run_markitdown(path: Path) -> str:
+    converter = get_markitdown_converter()
+    try:
+        result = converter.convert(str(path))
+    except Exception as exc:
+        raise ConversionError(f"MarkItDown conversion failed: {exc}") from exc
+
+    text_content = getattr(result, "text_content", None)
+    if not isinstance(text_content, str) or not text_content.strip():
+        raise ConversionError("MarkItDown returned no usable markdown output.")
+    return normalize_markitdown_output(text_content)
 
 
 def normalize_extracted_text(text: str) -> str:
@@ -478,13 +517,33 @@ def convert_source(
         return normalize_extracted_text(read_text_file(path))
 
     if suffix == ".docx":
-        return run_pandoc(path, from_format="docx", media_config=media_config)
+        try:
+            return run_markitdown(path)
+        except ConversionError as exc:
+            if "MarkItDown rich-document support" in str(exc):
+                raise
+            return run_pandoc(path, from_format="docx", media_config=media_config)
 
     if suffix in {".html", ".htm"}:
-        return run_pandoc(path, from_format="html")
+        try:
+            return run_markitdown(path)
+        except ConversionError as exc:
+            if "MarkItDown rich-document support" in str(exc):
+                raise
+            return run_pandoc(path, from_format="html")
 
     if suffix in PDF_EXTENSIONS:
-        return convert_pdf_with_backends(path, media_config=media_config)
+        try:
+            markdown = run_markitdown(path)
+        except ConversionError as exc:
+            if "MarkItDown rich-document support" in str(exc):
+                raise
+            return convert_pdf_with_backends(path, media_config=media_config)
+
+        plain = re.sub(r"\s+", "", markdown)
+        if len(plain) < 100:
+            return convert_pdf_with_backends(path, media_config=media_config)
+        return markdown
 
     raise ConversionError(
         f"unsupported source type: {suffix or '[no extension]'}. "

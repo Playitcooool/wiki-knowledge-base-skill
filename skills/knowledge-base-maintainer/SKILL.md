@@ -14,6 +14,7 @@ User-facing policy:
 - Keep `/kb:ingest` as the only public entrypoint.
 - Treat capability checks and dependency installs as follow-up guidance, not as the first thing the user has to learn.
 - Prefer the lightest supported path first, and only surface extra installation steps when the input actually needs them.
+- Treat `MarkItDown` as the default rich-document ingestion path for knowledge-base building, not as a high-fidelity layout-preservation tool.
 
 ## Workflow
 Public entrypoint: `/kb:ingest`
@@ -36,8 +37,9 @@ python3 skills/knowledge-base-maintainer/scripts/kb-ingest.py --root . --apply
 python3 skills/knowledge-base-maintainer/scripts/doctor.py
 ```
 4. Tell the user only the install step needed for the current file type:
-   - Base support: `md` / `txt` plus basic PDF fallback from `requirements.txt`
-   - On-demand support: `.docx` / `.html` via `pandoc`
+   - Base support: `md` / `txt`
+   - Default rich-document ingestion: `requirements-markitdown.txt`
+   - Local `.docx` / `.html` fallback: `pandoc`
    - Enhanced OCR PDF support: `requirements-optional.txt`
 
 ## Greenfield Handling
@@ -53,6 +55,7 @@ python3 skills/knowledge-base-maintainer/scripts/doctor.py
   - Updated: source mtime is newer than mapped page.
   - Deleted: mapped page references a missing source.
 - Converts sources through bundled `skills/knowledge-base-maintainer/scripts/convert_source.py`.
+- Uses `MarkItDown` first for supported rich-document inputs, then falls back to the existing local conversion chain when `MarkItDown` returns weak output or format-specific recovery is needed.
 - Generates/updates page frontmatter and required sections:
   - `Summary`
   - `Content`
@@ -69,6 +72,7 @@ python3 skills/knowledge-base-maintainer/scripts/doctor.py
 - Treat possible renames as conflicts unless they can be migrated safely, and ask when ambiguity remains.
 - Report conversion failures as conflicts; do not fabricate missing content.
 - Phrase conversion failures in capability terms when possible, for example missing DOCX support or missing OCR PDF support, instead of exposing backend selection details by default.
+- If `MarkItDown` is missing, treat that as a blocking capability gap for supported rich-document inputs and tell the user to install `requirements-markitdown.txt`.
 
 ## Classification Rules
 - Classify to exactly one primary category:
